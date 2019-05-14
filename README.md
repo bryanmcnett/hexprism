@@ -178,3 +178,21 @@ int Intersects(HexagonalPrisms world, int index, HexagonalPrism query)
   return mask;
 }
 ```
+
+The Pragmatic Axes
+------------------
+
+As with [Axis-Aligned Bounding Octahedron (AABO)](http://www.github.com/bryanmcnett/aabo) it is possible to use the
+elegant axes ABC that point at the vertices of an equilateral triangle, or the pragmatic axes {A,B,C} = {X, Y, -(X+Y)}.
+
+If you use these pragmatic axes, you can convert a pre-existing AABB into a Hexagonal Prism with exactly the same
+box shape it always had, and which needs to compare only 5 values instead of 6:
+
+```
+UpTriangle   up   = {minX, minY, -(maxX+maxY)}
+DownTriangle down = {maxX, maxY, -(minX+minY)}
+```
+
+You still have the benefit of needing to read only 3 values from memory per object before the vast majority of objects 
+are trivially rejected, which is nicer than an AABB's 4. This is reminiscent of the [7-Sided AABB](http://www.github.com/bryanmcnett/aabo) and I guess you could call it a 5-Sided AABB. 
+

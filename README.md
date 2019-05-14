@@ -102,7 +102,7 @@ on contemporary processors. But to get the most efficiency from Hexagonal Prisms
 
 This is because a triangle has three values, which is a poor match for naive SIMD.
 
-The more efficient implementation of Hexagonal Prisms uses SIMD, and looks more like this:
+The more efficient implementation of Hexagonal Prisms uses SIMD intrinsics, and looks more like this:
 
 ```
 struct UpTriangle

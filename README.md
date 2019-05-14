@@ -193,6 +193,6 @@ UpTriangle   up   = {minX, minY, -(maxX+maxY)}
 DownTriangle down = {maxX, maxY, -(minX+minY)}
 ```
 
-You still have the benefit of needing to read only 3 values from memory per object before the vast majority of objects 
-are trivially rejected, which is nicer than an AABB's 4. This is reminiscent of the [7-Sided AABB](http://www.github.com/bryanmcnett/aabo) and I guess you could call it a 5-Sided AABB. 
-
+You still have the benefit of needing to read only 3 values from memory per object most of the time, which is
+nicer than an AABB's 4. This is reminiscent of the [7-Sided AABB](http://www.github.com/bryanmcnett/aabo) and I guess 
+you could call it a 5-Sided AABB. 

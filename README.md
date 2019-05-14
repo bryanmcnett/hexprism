@@ -151,5 +151,5 @@ This is more efficient because it reads only three values into memory for the va
 minC. The remaining five values are read only in the unlikely event that the initial triangle check passes.
 
 We could attempt to never read Z into memory, unless the initial hexagon check passes. But making decisions (branching)
-itself consumes energy, and the first decision we made - the decision to reject objects or investigage further, based on 
+itself consumes energy, and the first decision we made - the decision to reject objects or investigate further, based on 
 the results of a triangle test - has a much higher payoff than any subsequent decision can.

@@ -147,8 +147,8 @@ int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 }
 ```
 
-This is more efficient because reads only three values into memory for the vast majority of objects: minA, minB, and minC.
-The remaining five values are read only in the unlikely event that the initial triangle check passes.
+This is more efficient because it reads only three values into memory for the vast majority of objects: minA, minB, and
+minC. The remaining five values are read only in the unlikely event that the initial triangle check passes.
 
 We could attempt to never read Z into memory, unless the initial hexagon check passes. But making decisions (branching)
 itself consumes energy, and the first decision we made - the decision to reject objects or investigage further, based on 

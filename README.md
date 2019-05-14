@@ -186,7 +186,7 @@ As with [Axis-Aligned Bounding Octahedron (AABO)](http://www.github.com/bryanmcn
 elegant axes ABC that point at the vertices of an equilateral triangle, or the pragmatic axes {A,B,C} = {X, Y, -(X+Y)}.
 
 If you use these pragmatic axes, you can convert a pre-existing AABB into a Hexagonal Prism with exactly the same
-box shape it always had, and which needs to compare only 5 values instead of 6:
+box shape it always had, and which needs to compare only 5 values per hexagon, instead of 6:
 
 ```
 UpTriangle   up   = {minX, minY, -(maxX+maxY)}

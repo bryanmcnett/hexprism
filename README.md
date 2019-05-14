@@ -109,26 +109,31 @@ struct UpTriangle
 {
   floatN minA, minB, minC;
 };
+
 struct DownTriangle
 {
   floatN maxA, maxB, maxC;
 };
+
 struct ZInterval
 {
   floatN minZ, maxZ;
 };
+
 struct HexagonalPrism
 {
   UpTriangle up;
   DownTriangle down;
   ZInterval z;
 };
+
 struct HexagonalPrisms
 {
   UpTriangle *up;
   DownTriangle *down;
   ZInterval *z;
 };
+
 int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 {
   int mask = 0;

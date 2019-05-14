@@ -8,10 +8,11 @@ For the purposes of this paper, XY define the horizontal plane, and positive Z p
 Hexagonal Prism Bounding Volume
 -------------------------------
 
-The Axis-Aligned Bounding Octahedron (AABO) is better than AABB for objects distributed fairly throughout 3D space,
-but most videogames have a distribution of objects that is fair in XY but not in Z. For games that are strictly 2D,
-axis-aligned bounding hexagons are best, but most 3D games take place on some kind of almost-2D terrain with mild
-verticality in Z. For this majority of games, a different data structure is a better fit than AABB or AABO.
+The [Axis-Aligned Bounding Octahedron (AABO)](http://www.github.com/bryanmcnett/aabo) is better than AABB for objects
+distributed fairly throughout 3D space, but most videogames have a distribution of objects that is fair in XY but not 
+in Z. For games that are strictly 2D, axis-aligned bounding hexagons are best, but most 3D games take place on some 
+kind of almost-2D terrain with mild verticality in Z. For this majority of games, a different data structure is a better 
+fit than AABB or AABO.
 
 Hexagonal Prism
 ---------------

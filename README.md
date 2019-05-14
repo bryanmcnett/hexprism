@@ -153,3 +153,20 @@ minC. The remaining five values are read only in the unlikely event that the ini
 We could attempt to never read Z into memory, unless the initial hexagon check passes. But making decisions (branching)
 itself consumes energy, and the first decision we made - the decision to reject objects or investigate further, based on 
 the results of a triangle test - has a much higher payoff than any subsequent decision can.
+
+If you know your query has a far smaller DownTriangle than an UpTriangle (if, for example, it is roughly
+DownTriangle-shaped) you can reverse the initial triangle test like so:
+
+```
+int Intersects(HexagonalPrisms world, int index, HexagonalPrism query)
+{
+  int mask = 0;
+  if(mask = Intersects(world.up[index], query.down)) // world up triangle intersects query down triangle
+  {
+    mask &= Intersects(query.up, world.down[index]))        // query up triangle intersects world down triangle
+    mask &= less_equals(query.z.minZ, world.z[index].maxZ)) // query's bottom intersects world's top
+    mask &= less_equals(world.z[index].minZ, query.z.maxZ)) // world's bottom intersects query's top
+  }  
+  return mask;
+}
+```

@@ -92,3 +92,60 @@ And, intersection tests between airborne objects and terrain can fail without co
 comparisons.
 
 ![Giant's Causeway in Northern Ireland](images/giants_causeway.jpg)
+
+A More Efficient Implementation
+-------------------------------
+
+Up to now, we have been able to introduce new bounding volumes using the conventional notation of the C struct
+containing floats, and see performance pretty close to what the geometry indicates, plus pretty good autovectorization
+on contemporary processors. But to get the most efficiency from Hexagonal Prisms, we can no longer do this.
+
+This is because a triangle has three values, which is a poor match for naive SIMD.
+
+The more efficient implementation of Hexagonal Prisms uses SIMD, and looks more like this:
+
+```
+struct UpTriangle
+{
+  floatN minA, minB, minC;
+};
+struct DownTriangle
+{
+  floatN maxA, maxB, maxC;
+};
+struct HexagonalPrism
+{
+  UpTriangle up;
+  DownTriangle down;
+  floatN minZ;
+  floatN maxZ;
+};
+struct HexagonalPrisms
+{
+  UpTriangle *up;
+  DownTriangle *down;
+  floatN *minZ;
+  floatN *maxZ;
+};
+bool Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
+{
+  int mask;
+  if( (mask   = Intersects(query.up, world.down[index])) // query up triangle intersects world down triangle
+  &&  (mask  &= Intersects(world.up[index], query.down)) // world up triangle intersects query down triangle
+  )
+  {
+    if( (mask  = less_equals(query.minZ, world.maxZ[index])) // query's bottom intersects world's top
+    &&  (mask &= less_equals(world.minZ[index], query.maxZ)) // world's bottom intersects query's top
+    )
+    {
+      intersections += popcnt(mask);
+    }
+  }  
+}
+```
+
+This is more efficient because it never reads Z into memory, unless an XY hexagon check has already passed, which is
+very rare. In the overwhelming majority of cases, this will read 3 values into memory for each object, and then very 
+rarely 3 more, and then more rarely 1 more, and then yet more rarely an 8th value.
+
+

@@ -127,7 +127,7 @@ struct HexagonalPrisms
   floatN *minZ;
   floatN *maxZ;
 };
-bool Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
+int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 {
   int mask;
   if( (mask   = Intersects(query.up, world.down[index])) // query up triangle intersects world down triangle
@@ -138,9 +138,10 @@ bool Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
     &&  (mask &= less_equals(world.minZ[index], query.maxZ)) // world's bottom intersects query's top
     )
     {
-      intersections += popcnt(mask);
+      return mask;
     }
   }  
+  return 0;
 }
 ```
 

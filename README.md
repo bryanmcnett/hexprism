@@ -113,19 +113,21 @@ struct DownTriangle
 {
   floatN maxA, maxB, maxC;
 };
+struct ZInterval
+{
+  floatN minZ, maxZ;
+};
 struct HexagonalPrism
 {
   UpTriangle up;
   DownTriangle down;
-  floatN minZ;
-  floatN maxZ;
+  ZInterval z;
 };
 struct HexagonalPrisms
 {
   UpTriangle *up;
   DownTriangle *down;
-  floatN *minZ;
-  floatN *maxZ;
+  ZInterval *z;
 };
 int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 {
@@ -134,8 +136,8 @@ int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
   &&  (mask  &= Intersects(world.up[index], query.down)) // world up triangle intersects query down triangle
   )
   {
-    mask &= less_equals(query.minZ, world.maxZ[index])) // query's bottom intersects world's top
-    mask &= less_equals(world.minZ[index], query.maxZ)) // world's bottom intersects query's top
+    mask &= less_equals(query.z.minZ, world.z[index].maxZ)) // query's bottom intersects world's top
+    mask &= less_equals(world.z[index].minZ, query.z.maxZ)) // world's bottom intersects query's top
   }  
   return mask;
 }

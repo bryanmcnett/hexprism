@@ -91,3 +91,4 @@ XY to merit it.
 And, intersection tests between airborne objects and terrain can fail without consulting any more than the same four
 comparisons.
 
+![Giant's Causeway in Northern Ireland](images/giants_causeway.jpg)

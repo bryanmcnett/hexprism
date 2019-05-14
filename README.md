@@ -134,6 +134,13 @@ struct HexagonalPrisms
   ZInterval *z;
 };
 
+int Intersects(UpTriangle up, DownTriangle down)
+{
+  return less_equals(up.minA, down.maxA)
+       & less_equals(up.minB, down.maxB)
+       & less_equals(up.minC, down.maxC);
+}
+
 int Intersects(HexagonalPrisms world, int index, HexagonalPrism query)
 {
   int mask = 0;

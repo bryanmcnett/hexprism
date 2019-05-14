@@ -155,7 +155,7 @@ itself consumes energy, and the first decision we made - the decision to reject 
 the results of a triangle test - has a much higher payoff than any subsequent decision can.
 
 If you know your query has a far smaller DownTriangle than an UpTriangle (if, for example, it is roughly
-DownTriangle-shaped) you can reverse the initial triangle test like so:
+DownTriangle-shaped) you can reverse the initial triangle test like so, to get better initial culling:
 
 ```
 int Intersects(HexagonalPrisms world, int index, HexagonalPrism query)

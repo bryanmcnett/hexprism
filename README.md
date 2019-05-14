@@ -142,7 +142,6 @@ int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 }
 ```
 
-This is more efficient because it never reads Z into memory, unless an XY hexagon check has already passed, which is
-very rare. In the overwhelming majority of cases, this will read 3 values into memory for each object, trivially reject
-all but a tiny fraction of objects, each of which reads 5 more values, 
+This is more efficient because reads only three values into memory for the vast majority of objects: minA, minB, and minC.
+The remaining five values are read only in the unlikely event that the initial triangle check passes.
 

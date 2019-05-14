@@ -134,7 +134,7 @@ struct HexagonalPrisms
   ZInterval *z;
 };
 
-int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
+int Intersects(HexagonalPrisms world, int index, HexagonalPrism query)
 {
   int mask = 0;
   if(mask = Intersects(query.up, world.down[index])) // query up triangle intersects world down triangle

@@ -84,7 +84,10 @@ flying or jumping or falling or ragdolling, or simply above it for some other re
 Only when the object is close to the query in XY, *and* when the query's "feet" are below the top of the 
 object, do we pay for eight checks.
 
-The cost is therefore roughly the same as the XY of an AABB - four checks. But there are six planes perpendicular
+The cost is therefore roughly the same as the XY of an AABB - four comparisons. But there are six planes perpendicular
 to XY, which is a tighter fit than an AABB's four planes, for when the query and world object are close enough in
-XY to merit it.
+XY to merit it. 
+
+And, intersection tests between airborne objects and terrain can fail without consulting any more than the same four
+comparisons.
 

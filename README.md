@@ -132,10 +132,9 @@ struct HexagonalPrisms
 int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 {
   int mask = 0;
-  if( (mask   = Intersects(query.up, world.down[index])) // query up triangle intersects world down triangle
-  &&  (mask  &= Intersects(world.up[index], query.down)) // world up triangle intersects query down triangle
-  )
+  if(mask = Intersects(query.up, world.down[index])) // query up triangle intersects world down triangle
   {
+    mask &= Intersects(world.up[index], query.down))        // world up triangle intersects query down triangle
     mask &= less_equals(query.z.minZ, world.z[index].maxZ)) // query's bottom intersects world's top
     mask &= less_equals(world.z[index].minZ, query.z.maxZ)) // world's bottom intersects query's top
   }  
@@ -144,7 +143,6 @@ int Intersects(HexagonalPrisms world, int index, HexagonalPrism queries)
 ```
 
 This is more efficient because it never reads Z into memory, unless an XY hexagon check has already passed, which is
-very rare. In the overwhelming majority of cases, this will read 3 values into memory for each object, and then 
-rarely 3 more, and then more rarely 2 more, for a total of 8.
-
+very rare. In the overwhelming majority of cases, this will read 3 values into memory for each object, trivially reject
+all but a tiny fraction of objects, each of which reads 5 more values, 
 

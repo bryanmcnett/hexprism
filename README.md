@@ -1,4 +1,9 @@
-# hexprism
+```
+bounding volume | accepts | seconds
+------------------------------------------
+           AABB |     830 |  8.4470
+       HexPrism |     821 |  6.8777
+```       
 
 Coordinate Space
 ----------------

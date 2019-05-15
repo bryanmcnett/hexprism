@@ -19,15 +19,22 @@ struct Clock
   }
 };
 
-#define VECTOR float
-#define MASK uint32_t
-#define SIZE 1
+#define VECTOR __m128
+#define MASK __m128
+#define SIZE 4
 
 union UNION
 {
   VECTOR v;
   float f[SIZE];
 };
+
+float get(VECTOR v, int index)
+{
+  UNION u;
+  u.v = v;
+  return u.f[index];
+}
 
 VECTOR broadcast(VECTOR v, float value)
 {
@@ -38,6 +45,11 @@ VECTOR broadcast(VECTOR v, float value)
   return u.v;
 }
 
+VECTOR broadcast_index(VECTOR v, int index)
+{
+  return broadcast(v, get(v, index));
+}
+
 void set(VECTOR& v, int index, float value)
 {
   UNION u;
@@ -46,50 +58,19 @@ void set(VECTOR& v, int index, float value)
   v = u.v;
 }
 
-uint32_t cmple_ps(float a, float b)
-{
-  return a <= b ? 1 : 0;
-}
+uint32_t cmple_ps(float a, float b) { return a <= b ? 0xFFFFFFFF : 0; }
+uint32_t and_ps(uint32_t a, uint32_t b) { return a & b; }
+uint32_t movemask_ps(uint32_t a) { return (a >> 31) & 1; }
 
-uint32_t and_ps(uint32_t a, uint32_t b)
-{
-  return a & b;
-}
+__m128 cmple_ps(__m128 a, __m128 b) { return _mm_cmple_ps(a,b); }
+__m128 and_ps(__m128 a, __m128 b) { return _mm_and_ps(a,b); }
+uint32_t movemask_ps(__m128 a) { return _mm_movemask_ps(a); }
 
-uint32_t movemask_ps(uint32_t a)
-{
-  return a;
-}
-
-__m128 cmple_ps(__m128 a, __m128 b)
-{
-  return _mm_cmple_ps(a,b);
-}
-
-__m128 and_ps(__m128 a, __m128 b)
-{
-  return _mm_and_ps(a,b);
-}
-
-uint32_t movemask_ps(__m128 a)
-{
-  return _mm_movemask_ps(a);
-}
-
-__m256 cmple_ps(__m256 a, __m256 b)
-{
-  return _mm256_cmp_ps(a,b,_CMP_LE_OQ);
-}
-
-__m256 and_ps(__m256 a, __m256 b)
-{
-  return _mm256_and_ps(a,b);
-}
-
-uint32_t movemask_ps(__m256 a)
-{
-  return _mm256_movemask_ps(a);
-}
+#if 0
+__m256 cmple_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a,b,_CMP_LE_OQ); }
+__m256 and_ps(__m256 a, __m256 b) { return _mm256_and_ps(a,b); }
+uint32_t movemask_ps(__m256 a) { return _mm256_movemask_ps(a); }
+#endif
 
 struct Slab
 {
@@ -122,7 +103,7 @@ MASK Intersects(const TwoSlab a, const TwoSlab b)
   return mask;
 }
 
-int Intersects(AABBs world, int index, const AABB query)
+int Intersects(const AABBs world, const int index, const AABB query)
 {
   MASK mask = Intersects(world.xy[index], query.xy); // 4 half-spaces
   if(movemask_ps(mask) == 0)
@@ -164,7 +145,7 @@ struct HexPrisms
   Slab *z;
 };
 
-int Intersects(HexPrisms world, int index, const HexPrism query)
+int Intersects(const HexPrisms world, const int index, const HexPrism query)
 {
   MASK mask = Intersects(world.up[index], query.down); // 3 half-spaces
   if(movemask_ps(mask) == 0)
@@ -173,11 +154,6 @@ int Intersects(HexPrisms world, int index, const HexPrism query)
   mask = and_ps(mask, cmple_ps(query.z.mini, world.z[index].maxi)); // 1 half-space
   mask = and_ps(mask, cmple_ps(world.z[index].mini, query.z.maxi)); // 1 half-space
   return movemask_ps(mask);
-};
-
-struct float2
-{
-  float x,y;
 };
 
 struct float3
@@ -247,8 +223,8 @@ struct Mesh
     {
       do
       {
-        m_point[p].x = random(-radius, radius) * 0.5f;
-        m_point[p].y = random(-radius, radius) * 0.5f;
+        m_point[p].x = random(-radius, radius) * 0.25f;
+        m_point[p].y = random(-radius, radius) * 0.25f;
         m_point[p].z = random(-radius, radius);  // mostly taller than wide, like in a game
       } while(length(m_point[p]) > radius);
     }
@@ -277,7 +253,7 @@ struct Object
     set(aabb->xy[vector].y.mini, element, mini.y);
     set(aabb->xy[vector].y.maxi, element, maxi.y);
     set(aabb->z[vector].mini, element, mini.z);
-    set(aabb->z[vector].maxi, element, mini.z);
+    set(aabb->z[vector].maxi, element, maxi.z);
   }
   void CalculateHexPrism(HexPrisms* hexPrism, int index) const
   { 
@@ -318,17 +294,17 @@ int main(int argc, char* argv[])
   for(int m = 0; m < kMeshes; ++m)
     mesh[m].Generate(50, 1.f);
 
-  const int kTests = 100;
+  const int kTests = 500;
 
-  const int kVectors = 1000000;
+  const int kVectors = 10000000;
   const int kObjects = kVectors / SIZE;
   Object* objects = new Object[kObjects];
   for(int o = 0; o < kObjects; ++o)
   {
     objects[o].m_mesh = &mesh[rand() % kMeshes];
-    objects[o].m_position.x = random(-50.f, 50.f);
-    objects[o].m_position.y = random(-50.f, 50.f);
-    objects[o].m_position.z = random( -1.f,  1.f); // mostly wider than flat, like in a game
+    objects[o].m_position.x = random(-1000.f, 1000.f);
+    objects[o].m_position.y = random(-1000.f, 1000.f);
+    objects[o].m_position.z = random(   -1.f,    1.f); // mostly wider than flat, like in a game
   }
 
   AABBs aabbs;
@@ -347,9 +323,9 @@ int main(int argc, char* argv[])
   const char *title = "%22s | %7s | %7s\n";
 
   printf(title, "bounding volume", "accepts", "seconds");
-  printf("------------------------------------------------------------------\n");
+  printf("------------------------------------------\n");
   
-  const char *format = "%22s | %7d | %3.4f\n";
+  const char *format = "%22s | %7d |  %3.4f\n";
   
   {
     const Clock clock;
@@ -357,19 +333,19 @@ int main(int argc, char* argv[])
     for(int test = 0; test < kTests; ++test)
     {
       AABB query;
-      query.xy.x.mini = broadcast(aabbs.xy[test].x.mini, 0);
-      query.xy.x.maxi = broadcast(aabbs.xy[test].x.maxi, 0);
-      query.xy.y.mini = broadcast(aabbs.xy[test].y.mini, 0);
-      query.xy.y.maxi = broadcast(aabbs.xy[test].y.maxi, 0);
-      query.z.mini    = broadcast(aabbs.z[test].mini, 0);
-      query.z.maxi    = broadcast(aabbs.z[test].maxi, 0);
+      query.xy.x.mini = broadcast_index(aabbs.xy[test].x.mini, 0);
+      query.xy.x.maxi = broadcast_index(aabbs.xy[test].x.maxi, 0);
+      query.xy.y.mini = broadcast_index(aabbs.xy[test].y.mini, 0);
+      query.xy.y.maxi = broadcast_index(aabbs.xy[test].y.maxi, 0);
+      query.z.mini    = broadcast_index(aabbs.z[test].mini, 0);
+      query.z.maxi    = broadcast_index(aabbs.z[test].maxi, 0);
       for(int v = 0; v < kVectors; ++v)
-	if(int mask = Intersects(aabbs, v, query))
+	if(const int mask = Intersects(aabbs, v, query))
 	  intersections += __builtin_popcount(mask);
     }
     const float seconds = clock.seconds();
     
-    printf(format, "AABB", 0, 0, intersections, seconds);
+    printf(format, "AABB", intersections, seconds);
   }
 
   {
@@ -378,21 +354,21 @@ int main(int argc, char* argv[])
     for(int test = 0; test < kTests; ++test)
     {
       HexPrism query;
-      query.up.minA   = broadcast(hexprisms.up[test].minA, 0);
-      query.up.minB   = broadcast(hexprisms.up[test].minB, 0);
-      query.up.minC   = broadcast(hexprisms.up[test].minC, 0);
-      query.down.maxA = broadcast(hexprisms.down[test].maxA, 0);
-      query.down.maxB = broadcast(hexprisms.down[test].maxB, 0);
-      query.down.maxC = broadcast(hexprisms.down[test].maxC, 0);
-      query.z.mini    = broadcast(hexprisms.z[test].mini, 0);
-      query.z.maxi    = broadcast(hexprisms.z[test].maxi, 0);
+      query.up.minA   = broadcast_index(hexprisms.up[test].minA, 0);
+      query.up.minB   = broadcast_index(hexprisms.up[test].minB, 0);
+      query.up.minC   = broadcast_index(hexprisms.up[test].minC, 0);
+      query.down.maxA = broadcast_index(hexprisms.down[test].maxA, 0);
+      query.down.maxB = broadcast_index(hexprisms.down[test].maxB, 0);
+      query.down.maxC = broadcast_index(hexprisms.down[test].maxC, 0);
+      query.z.mini    = broadcast_index(hexprisms.z[test].mini, 0);
+      query.z.maxi    = broadcast_index(hexprisms.z[test].maxi, 0);
       for(int v = 0; v < kVectors; ++v)
-	if(int mask = Intersects(hexprisms, v, query))
+	if(const int mask = Intersects(hexprisms, v, query))
 	  intersections += __builtin_popcount(mask);
     }
     const float seconds = clock.seconds();
     
-    printf(format, "HexPrism", 0, 0, intersections, seconds);
+    printf(format, "HexPrism", intersections, seconds);
   }
   
   return 0;

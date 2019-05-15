@@ -302,9 +302,9 @@ int main(int argc, char* argv[])
   for(int o = 0; o < kObjects; ++o)
   {
     objects[o].m_mesh = &mesh[rand() % kMeshes];
-    objects[o].m_position.x = random(-1000.f, 1000.f);
-    objects[o].m_position.y = random(-1000.f, 1000.f);
-    objects[o].m_position.z = random(   -1.f,    1.f); // mostly wider than flat, like in a game
+    objects[o].m_position.x = random(-100.f, 100.f);
+    objects[o].m_position.y = random(-100.f, 100.f);
+    objects[o].m_position.z = random(  -1.f,   1.f); // mostly wider than flat, like in a game
   }
 
   AABBs aabbs;

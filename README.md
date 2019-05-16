@@ -47,9 +47,9 @@ There are two better ways to look at the hex prism, than as opposing five-sided 
 implementation, as a hexagon-hexagon check is most likely to exclude the vastest majority of objects in a mostly-2D world.
 However, the three values of a triangle don't pack well into SIMD registers unless you write intrinsics.
 
-2. A. a triangular prism that ascends from the earth to some specific point in Z, matched to B. an opposing triangular
-prism that descends from the sky to some specific point in Z. These are not closed shapes, but A can play the role of
-terrain and B can play the role of a thing that rests on the terrain. As each of these things has four values - three
+2. Ⓐ a triangular prism that ascends from the depths to some specific point in Z, matched to Ⓑ an opposing triangular
+prism that descends from the sky to some specific point in Z. These are not closed shapes, but Ⓐ can play the role of
+terrain and Ⓑ can play the role of a thing that rests on the terrain. As each of these things has four values - three
 for the triangle and one for Z - it fits nicely into SIMD registers and cache, even when intrinsics aren't used.
 However, efficiency is lost when Z values are mixed with XY in memory.
 

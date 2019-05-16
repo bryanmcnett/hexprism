@@ -27,7 +27,7 @@ We are talking here specifically about hexagonal prisms aligned to the Z axis, l
 ![Hex Prism Houses](images/hexagon_house.jpg)
 
 This sort of bounding volume can be as tall and skinny as you like in Z, and also in three directions in the XY 
-plane, for a total of four long-and-skinny directions, which is more than the three of an an AABB.
+plane, for a total of four long-and-skinny directions, which is more than the three of an AABB.
 
 Whatever shape is well-bounded by an AABB, is better-bounded by a hex prism, which can even *be* an AABB if you
 set two of its axes to X and Y. Despite the fact that a hex prism has 33% more planes, an AABB spends 33% more 
@@ -37,7 +37,8 @@ instead of an AABB's four.
 ![Hexagonal Prism](images/hexagonalprism.jpg)
 
 Like AABO, a hex prism has eight sides. Unlike AABO, it is not made of opposing tetrahedra. Instead, it is made of 
-opposing triangular prisms whose caps are coplanar in the XY plane. Unlike with tetrahedra, it is not efficient to test 
+opposing triangular prisms whose caps are coplanar in the XY plane. Each has five sides, but we do not store a total
+of ten sides, because the triangular prisms share caps. Unlike with tetrahedra, it is not efficient to test 
 opposing pairs of triangular prisms in turn, because the caps would be tested more than once.
 
 There are two better ways to look at the hex prism:

@@ -10,7 +10,7 @@ Coordinate Space
 
 For the purposes of this paper, XY define the horizontal plane, and positive Z points upwards at the sky.
 
-Hexagonal Prism Bounding Volume
+Hex Prism Bounding Volume
 -------------------------------
 
 The [Axis-Aligned Bounding Octahedron (AABO)](http://www.github.com/bryanmcnett/aabo) is better than AABB for objects
@@ -19,25 +19,56 @@ in Z. For games that are strictly 2D, axis-aligned bounding hexagons are best, b
 kind of almost-2D terrain with mild verticality in Z. For this majority of games, a different data structure is a better 
 fit than AABB or AABO.
 
-Hexagonal Prism
----------------
+Hex Prism
+---------
 
-Like AABO, a hexagonal prism has eight sides. Unlike AABO, it is not made of tetrahedra. Instead, it is made of a
-triangular prism that points up in Y and extends upwards infinitely in Z, and a triangular prism that points down in Y
-and extends downwards infinitely in Z:
+We are talking here specifically about hexagonal prisms aligned to the Z axis, like the houses in this image.
+
+![Hex Prism Houses](images/hexagonal_house.jpg)
+
+This sort of bounding volume can be as tall and skinny as you like in Z, and also in three directions in the XY 
+plane, for a total of four long-and-skinny directions, which is more than the three of an an AABB.
+
+Whatever shape is well-bounded by an AABB, is better-bounded by a hex prism, which can even *be* an AABB if you
+set two of its axes to X and Y. Despite the fact that a hex prism has 33% more planes, an AABB spends 33% more 
+energy in trivial rejection, because a hex prism almost always rejects after reading three values from memory, 
+instead of an AABB's four.
+
+![Hex Prism Houses](images/hexagonalprism.jpg)
+
+Like AABO, a hex prism has eight sides. Unlike AABO, it is not made of opposing tetrahedra. Instead, it is made of 
+opposing triangular prisms whose caps are coplanar in the XY plane. Unlike with tetrahedra, it is not efficient to test 
+opposing pairs of triangular prisms in turn, because the caps would be tested more than once.
+
+There are two better ways to look at the hex prism:
+
+1. It is an axis-aligned bounding hexagon in XY, plus an unrelated interval in Z. This leads to the most efficient
+implementation, as a hexagon-hexagon check is most likely to exclude the vastest majority of objects in a mostly-2D world.
+However, the three values of a triangle don't pack well into SIMD registers unless you write intrinsics.
+
+2. A. a triangular prism that ascends from the earth to some specific point in Z, matched to B. an opposing triangular
+prism that descends from the sky to some specific point in Z. These are not closed shapes, but A can play the role of
+terrain and B can play the role of a thing that rests on the terrain. As each of these things has four values - three
+for the triangle and one for Z - it fits nicely into SIMD registers and cache, even when intrinsics aren't used.
+However, efficiency is lost when Z values are mixed with XY in memory.
+
+The Naive Implementation
+------------------------
+
+This implementation is fairly easy to auto-vectorize or represent with naive SIMD (a "float4 class")
 
 ```
-struct UpPrism
+struct UpTriangularPrism
 {
   float minA, minB, minC, minZ;
 };
 
-struct DownPrism
+struct DownTriangularPrism
 {
   float maxA, maxB, maxC, maxZ;
 };
 
-bool Intersects(UpPrism u, DownPrism d)
+bool Intersects(UpTriangularPrism u, DownTriangularPrism d)
 {
   return u.minA <= d.maxA
       && u.minB <= d.maxB
@@ -51,8 +82,8 @@ The intersection of an UpPrism and DownPrism is a HexagonalPrism:
 ```
 struct HexagonalPrisms
 {
-  UpPrism   *up;   // Triangular prism points up in Y, extends from specific Z to positive infinity
-  DownPrism *down; // Triangular prism points down in Y, extends from specific Z to negative infinity
+  UpTriangularPrism   *up;   // Triangular prism points up in Y, extends from specific Z to positive infinity
+  DownTriangularPrism *down; // Triangular prism points down in Y, extends from specific Z to negative infinity
 };
 
 bool Intersects(HexagonalPrisms world, int index, HexagonalPrism query)
@@ -62,9 +93,6 @@ bool Intersects(HexagonalPrisms world, int index, HexagonalPrism query)
 }
 ```
 
-All objects are bounded by hexagonal prisms with caps in the XY plane. This is a pretty good fit for a
-skyscraper, or any kind of terrain feature that is built upwards or downwards. It's also a pretty good fit
-for a human, who is generally taller than they are wide.
 
 The novel bit here is in the order of the tests in the Intersection function. Let's look at it closely:
 

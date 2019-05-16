@@ -24,7 +24,7 @@ Hex Prism
 
 We are talking here specifically about hexagonal prisms aligned to the Z axis, like the houses in this image.
 
-![Hex Prism Houses](images/hexagonal_house.jpg)
+![Hex Prism Houses](images/hexagon_house.jpg)
 
 This sort of bounding volume can be as tall and skinny as you like in Z, and also in three directions in the XY 
 plane, for a total of four long-and-skinny directions, which is more than the three of an an AABB.
@@ -34,7 +34,7 @@ set two of its axes to X and Y. Despite the fact that a hex prism has 33% more p
 energy in trivial rejection, because a hex prism almost always rejects after reading three values from memory, 
 instead of an AABB's four.
 
-![Hex Prism Houses](images/hexagonalprism.jpg)
+![Hexagonal Prism](images/hexagonalprism.jpg)
 
 Like AABO, a hex prism has eight sides. Unlike AABO, it is not made of opposing tetrahedra. Instead, it is made of 
 opposing triangular prisms whose caps are coplanar in the XY plane. Unlike with tetrahedra, it is not efficient to test 

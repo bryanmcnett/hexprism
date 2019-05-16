@@ -41,7 +41,7 @@ opposing triangular prisms whose caps are coplanar in the XY plane. Each has fiv
 of ten sides, because the triangular prisms share caps. Unlike with tetrahedra, it is not efficient to test 
 opposing pairs of triangular prisms in turn, because the caps would be tested more than once.
 
-There are two better ways to look at the hex prism:
+There are two better ways to look at the hex prism, than as opposing five-sided convex polyhedra:
 
 1. It is an axis-aligned bounding hexagon in XY, plus an unrelated interval in Z. This leads to the most efficient
 implementation, as a hexagon-hexagon check is most likely to exclude the vastest majority of objects in a mostly-2D world.
